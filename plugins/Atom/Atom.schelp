@@ -1,0 +1,26 @@
+class:: Atom
+summary:: atom
+related:: TODO
+categories:: UGens>TODO
+
+description::
+
+atom
+
+
+classmethods::
+
+method::ar, kr
+
+argument::TODO
+
+argument::TODO
+
+
+examples::
+
+code::
+
+{ Atom.ar(/* TODO */) }.play
+
+::
