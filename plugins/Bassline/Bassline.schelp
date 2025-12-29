@@ -1,0 +1,115 @@
+class:: Bassline
+summary:: Bassline atom with frequency modulation causing peak distortion
+related:: Classes/Atom, Classes/AtomSpace, Classes/Kick
+categories:: UGens>Generators>Synth
+
+description::
+
+Bassline is a bassline atom that generates a sine wave with frequency modulation. The frequency goes in and out of alignment on the crest of the wave, causing distortion at the peaks. This creates a characteristic bass sound with subtle harmonic distortion.
+
+The frequency modulation is synchronized to the waveform, creating phase distortion effects that add warmth and character to the bass sound.
+
+classmethods::
+
+method::ar
+
+argument::x
+X position in 3D space (control rate, default 0.0)
+
+argument::y
+Y position in 3D space (control rate, default 0.0)
+
+argument::z
+Z position in 3D space (control rate, default 0.0)
+
+argument::vx
+Velocity in X direction (control rate, default 0.0)
+
+argument::vy
+Velocity in Y direction (control rate, default 0.0)
+
+argument::vz
+Velocity in Z direction (control rate, default 0.0)
+
+argument::radius
+Collision radius for interaction with other atoms (control rate, default 0.6)
+
+argument::freq
+Base frequency in Hz (control rate, default 110.0)
+
+argument::amp
+Audio amplitude (control rate, default 0.2)
+
+argument::bpm
+Beats per minute - synchronizes modulation rate (control rate, default 120.0). The modulation frequency is set to BPM/60 Hz (once per beat). This can be changed dynamically using .set() while the synth is running.
+
+argument::modDepth
+Frequency modulation depth (0-1, control rate, default 0.1). Controls the amount of frequency deviation.
+
+argument::distortion
+Distortion amount at peaks (0-1, control rate, default 0.3). Controls how much distortion is applied when the waveform is at its peak.
+
+outputs::
+Audio signal from the bassline atom with frequency modulation and peak distortion.
+
+examples::
+
+code::
+
+// Basic bassline synchronized to BPM
+{ Bassline.ar(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.6, 110.0, 0.2, 120.0) }.play
+
+// Bassline with custom BPM and modulation
+{ Bassline.ar(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.6, 110.0, 0.3, 140.0, 0.15, 0.4) }.play
+
+// Bassline in a space synchronized to BPM
+(
+{
+    var space = AtomSpace.ar(10.0);
+    var bpm = 128.0;
+    var bass = Bassline.ar(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.6, 55.0, 0.25, bpm, 0.12, 0.35);
+    bass;
+}.play
+)
+
+// Multiple basslines synchronized to same BPM
+(
+{
+    var space = AtomSpace.ar(15.0);
+    var bpm = 120.0;
+    var basses = [
+        Bassline.ar(-2.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.6, 55.0, 0.15, bpm, 0.1, 0.3),
+        Bassline.ar(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.6, 82.5, 0.15, bpm, 0.12, 0.35),
+        Bassline.ar(2.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.6, 110.0, 0.15, bpm, 0.15, 0.4)
+    ];
+    basses.sum;
+}.play
+)
+
+// Kick and Bassline synchronized to same BPM
+(
+{
+    var space = AtomSpace.ar(10.0);
+    var bpm = 120.0;
+    var kick = Kick.ar(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.8, 60.0, 0.3, bpm);
+    var bass = Bassline.ar(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.6, 55.0, 0.2, bpm, 0.1, 0.3);
+    [kick, bass].sum;
+}.play
+)
+
+// Change BPM dynamically using .set() - create SynthDef with named controls
+(
+SynthDef(\kickBassSynth, { |bpm = 120.0|
+    var space = AtomSpace.ar(10.0);
+    var kick = Kick.ar(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.8, 60.0, 0.3, bpm);
+    var bass = Bassline.ar(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.6, 55.0, 0.2, bpm, 0.1, 0.3);
+    Out.ar(0, [kick, bass].sum);
+}).add;
+)
+
+x = Synth(\kickBassSynth, [\bpm, 120.0]);
+x.set(\bpm, 140.0);  // Speed up - both kick and bassline will sync
+x.set(\bpm, 100.0);  // Slow down
+x.free;
+
+::

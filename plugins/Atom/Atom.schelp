@@ -1,26 +1,12 @@
 class:: Atom
-summary:: atom
-related:: TODO
-categories:: UGens>TODO
+summary:: Base atom class (minimal implementation - meant to be extended)
+related:: Classes/AtomSpace
+categories:: UGens>Generators>Deterministic
 
 description::
 
-atom
+Atom is the base class for atoms in the 3D audio space. It provides minimal core functionality including position, velocity, and basic audio generation. Physics simulation (like gravity) and collision handling are not part of the base Atom class - these should be implemented by derived classes or added as composable components.
 
-
-classmethods::
-
-method::ar, kr
-
-argument::TODO
-
-argument::TODO
-
-
-examples::
-
-code::
-
-{ Atom.ar(/* TODO */) }.play
+The base Atom class is designed to be extended by concrete atom types that implement specific behaviors, physics components, and interaction rules.
 
 ::

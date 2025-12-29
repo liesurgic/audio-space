@@ -1,0 +1,30 @@
+class:: AtomSpace
+summary:: Container space for atoms in 3D space
+related:: Classes/Atom
+categories:: UGens>Generators>Deterministic
+
+description::
+
+AtomSpace provides a container for atoms in 3D space. It maintains the space boundaries and tracks active atoms. Physics simulation and interaction handling are not part of AtomSpace - these are handled by the atoms themselves or their physics components.
+
+classmethods::
+
+method::ar
+
+argument::spaceSize
+Size of the 3D space cube (control rate, default 10.0). This defines the boundaries of the space.
+
+outputs::
+Control rate signal indicating the number of active atoms in the space.
+
+examples::
+
+code::
+
+// Create a space
+{ AtomSpace.ar(10.0) }.play
+
+// Larger space
+{ AtomSpace.ar(20.0) }.play
+
+::

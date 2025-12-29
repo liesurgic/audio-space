@@ -73,10 +73,11 @@ set(Atom_sc_files
 )
 set(Atom_schelp_files
     plugins/Atom/Atom.schelp
+    plugins/Atom/AtomSpace.schelp
 )
 
 sc_add_server_plugin(
-    "Atom/Atom" # desination directory
+    "plugins/Atom/Atom" # desination directory
     "Atom" # target name
     "${Atom_cpp_files}"
     "${Atom_sc_files}"
@@ -84,6 +85,58 @@ sc_add_server_plugin(
 )
 
 # End target Atom
+####################################################################################################
+
+####################################################################################################
+# Begin target Kick
+####################################################################################################
+
+set(Kick_cpp_files
+    plugins/Kick/Kick.cpp
+    plugins/Kick/Kick.hpp
+)
+set(Kick_sc_files
+    plugins/Kick/Kick.sc
+)
+set(Kick_schelp_files
+    plugins/Kick/Kick.schelp
+)
+
+sc_add_server_plugin(
+    "plugins/Kick/Kick" # destination directory
+    "Kick" # target name
+    "${Kick_cpp_files}"
+    "${Kick_sc_files}"
+    "${Kick_schelp_files}"
+)
+
+# End target Kick
+####################################################################################################
+
+####################################################################################################
+# Begin target Bassline
+####################################################################################################
+
+set(Bassline_cpp_files
+    plugins/Bassline/Bassline.cpp
+    plugins/Bassline/Bassline.hpp
+)
+set(Bassline_sc_files
+    plugins/Bassline/Bassline.sc
+)
+set(Bassline_schelp_files
+    plugins/Bassline/Bassline.schelp
+)
+
+sc_add_server_plugin(
+    "plugins/Bassline/Bassline" # destination directory
+    "Bassline" # target name
+    "${Bassline_cpp_files}"
+    "${Bassline_sc_files}"
+    "${Bassline_schelp_files}"
+)
+
+# End target Bassline
 ####################################################################################################
 
 ####################################################################################################

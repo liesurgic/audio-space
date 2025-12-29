@@ -1,0 +1,106 @@
+
+void handleCollision(AtomData& atom1, AtomData& atom2) {
+    // Calculate collision normal
+    Vec3 delta = atom1.position - atom2.position;
+    float dist = delta.length();
+    if (dist < 0.0001f) return;
+    
+    Vec3 normal = delta.normalize();
+    
+    // Determine interaction based on atom interaction types
+    int interaction = std::max(atom1.interactionType, atom2.interactionType);
+    
+    switch (interaction) {
+        case 1: { // Fusion - merge atoms
+            // Combine properties (simplified)
+            atom1.audioFreq = (atom1.audioFreq + atom2.audioFreq) * 0.5f;
+            atom1.audioAmp += atom2.audioAmp * 0.5f;
+            atom1.collisionRadius = std::max(atom1.collisionRadius, atom2.collisionRadius);
+            atom2.active = false;  // Remove second atom
+            break;
+        }
+        case 2: { // Repulsion - bounce apart
+            float overlap = (atom1.collisionRadius + atom2.collisionRadius) - dist;
+            if (overlap > 0.0f) {
+                Vec3 separation = normal * (overlap * 0.5f);
+                atom1.position = atom1.position + separation;
+                atom2.position = atom2.position - separation;
+                
+                // Exchange velocity components along normal
+                float v1n = atom1.velocity.x * normal.x + atom1.velocity.y * normal.y + atom1.velocity.z * normal.z;
+                float v2n = atom2.velocity.x * normal.x + atom2.velocity.y * normal.y + atom2.velocity.z * normal.z;
+                
+                Vec3 v1n_vec = normal * v1n;
+                Vec3 v2n_vec = normal * v2n;
+                Vec3 v1t = atom1.velocity - v1n_vec;
+                Vec3 v2t = atom2.velocity - v2n_vec;
+                
+                // Elastic collision (simplified)
+                atom1.velocity = v2t + v2n_vec * 0.9f;
+                atom2.velocity = v1t + v1n_vec * 0.9f;
+            }
+            break;
+        }
+        case 3: { // Absorption - atom1 absorbs atom2
+            atom1.audioAmp += atom2.audioAmp * 0.3f;
+            atom1.collisionRadius += atom2.collisionRadius * 0.1f;
+            atom2.active = false;
+            break;
+        }
+        case 4: { // Resonance - harmonic relationship
+            // Modulate frequencies to create harmonics
+            float ratio = atom1.audioFreq / atom2.audioFreq;
+            if (ratio < 1.0f) ratio = 1.0f / ratio;
+            // Create harmonic relationship
+            atom1.audioFreq *= (1.0f + 0.01f * std::sin(atom2.age * 10.0f));
+            atom2.audioFreq *= (1.0f + 0.01f * std::cos(atom1.age * 10.0f));
+            break;
+        }
+        case 5: { // Modulation - atom1 modulates atom2
+            float modAmount = 0.1f * (1.0f - dist / (atom1.collisionRadius + atom2.collisionRadius));
+            atom2.audioFreq *= (1.0f + modAmount * std::sin(atom1.age * atom1.audioFreq * 0.1f));
+            atom2.audioAmp *= (1.0f + modAmount * 0.5f);
+            break;
+        }
+        case 6: { // Trigger - collision triggers events
+            // Reset envelope phases to trigger sounds
+            // This will be handled in the Atom UGen's audio generation
+            break;
+        }
+        default: { // Default: simple repulsion
+            float overlap = (atom1.collisionRadius + atom2.collisionRadius) - dist;
+            if (overlap > 0.0f) {
+                Vec3 separation = normal * (overlap * 0.5f);
+                atom1.position = atom1.position + separation;
+                atom2.position = atom2.position - separation;
+                
+                // Damped repulsion
+                atom1.velocity = atom1.velocity + normal * 0.1f;
+                atom2.velocity = atom2.velocity - normal * 0.1f;
+            }
+            break;
+        }
+    }
+}
+
+
+  cd .../build
+  cmake .. -DSC_PATH=../supercollider -DCMAKE_INSTALL_PREFIX=/Users/liesurgic/Library/Application\ Support/SuperCollider/Extensions\n
+  cmake --build . --config Release
+  cmake --build . --config Release --target install
+
+class Kick
+class BreaksLightning
+class BreaksTornado
+class Swamp
+class Frogs
+    class Frog
+class Monster
+class Hits
+class Rack
+    -> class Hits
+class Sample
+class RackSampler
+    -> Samples: Sample[]
+
+

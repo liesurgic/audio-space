@@ -1,0 +1,105 @@
+class:: Kick
+summary:: Kick drum atom in 3D space
+related:: Classes/Atom, Classes/AtomSpace
+categories:: UGens>Generators>Drums
+
+description::
+
+Kick is a kick drum atom that extends the base Atom class. It generates a kick drum sound with a frequency sweep from high to low, creating the characteristic "thump" of a kick drum. The kick can be triggered manually via the trigger input, and it can move through 3D space like other atoms.
+
+The kick drum sound is created using a sine wave with an exponential frequency sweep and envelope, providing a classic kick drum timbre.
+
+classmethods::
+
+method::ar
+
+argument::x
+X position in 3D space (control rate, default 0.0)
+
+argument::y
+Y position in 3D space (control rate, default 0.0)
+
+argument::z
+Z position in 3D space (control rate, default 0.0)
+
+argument::vx
+Velocity in X direction (control rate, default 0.0)
+
+argument::vy
+Velocity in Y direction (control rate, default 0.0)
+
+argument::vz
+Velocity in Z direction (control rate, default 0.0)
+
+argument::radius
+Collision radius for interaction with other atoms (control rate, default 0.8)
+
+argument::freq
+Kick pitch in Hz (control rate, default 60.0). This is the final frequency - the kick sweeps from higher to this frequency.
+
+argument::amp
+Audio amplitude (control rate, default 0.3)
+
+argument::bpm
+Beats per minute - synchronizes kick timing (control rate, default 120.0). The kick will auto-trigger on every beat. This can be changed dynamically using .set() while the synth is running.
+
+argument::beatsPerBar
+Number of beats per bar (control rate, default 4.0). Used for calculating bar length.
+
+argument::trig
+Manual trigger input - a rising edge (0 to non-zero) triggers the kick (control rate, default 0.0). Works in addition to BPM sync.
+
+outputs::
+Audio signal from the kick drum atom.
+
+examples::
+
+code::
+
+// Basic kick drum synchronized to BPM
+{ Kick.ar(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.8, 60.0, 0.3, 120.0) }.play
+
+// Kick with custom BPM
+{ Kick.ar(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.8, 50.0, 0.4, 140.0) }.play
+
+// Kick in a space synchronized to BPM
+(
+{
+    var space = AtomSpace.ar(10.0);
+    var bpm = 128.0;
+    var kick = Kick.ar(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.8, 60.0, 0.3, bpm);
+    kick;
+}.play
+)
+
+// Multiple kicks synchronized to same BPM
+(
+{
+    var space = AtomSpace.ar(15.0);
+    var bpm = 120.0;
+    var kicks = [
+        Kick.ar(-2.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.8, 60.0, 0.2, bpm),
+        Kick.ar(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.8, 80.0, 0.2, bpm),
+        Kick.ar(2.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.8, 50.0, 0.2, bpm)
+    ];
+    kicks.sum;
+}.play
+)
+
+// Kick with dynamic BPM changes using control rate UGen
+{ Kick.ar(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.8, 55.0, 0.3, LFNoise1.kr(0.1).range(100, 140)) }.play
+
+// Change BPM dynamically using .set() - create SynthDef with named controls
+(
+SynthDef(\kickSynth, { |bpm = 120.0|
+    var kick = Kick.ar(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.8, 60.0, 0.3, bpm);
+    Out.ar(0, kick);
+}).add;
+)
+
+x = Synth(\kickSynth, [\bpm, 120.0]);
+x.set(\bpm, 140.0);  // Speed up
+x.set(\bpm, 100.0);  // Slow down
+x.free;
+
+::

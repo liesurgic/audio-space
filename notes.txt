@@ -1,0 +1,3 @@
+boot server
+Server.default.boot;
+
