@@ -1,0 +1,126 @@
+class:: Womp
+summary:: Womp atom combining Kick and Bassline with synchronized peaks
+related:: Classes/Kick, Classes/Bassline, Classes/AtomSpace
+categories:: UGens>Generators>Drums
+
+description::
+
+Womp combines a kick drum and bassline, synchronizing the bassline's peak distortion with the kick triggers and applying sidechain compression. The kick triggers on every beat (based on BPM), and the bassline's frequency modulation peaks align with each kick. Additionally, the bassline is sidechained to the kick - when the kick plays, the bassline is compressed/ducked to make room for the kick, ensuring the full power of the kick is felt while carving out its frequency space from the bassline.
+
+The bassline uses frequency modulation that peaks when the kick hits, creating a synchronized rhythmic pattern: kick peak, bassline peak, kick peak, bassline peak...
+
+classmethods::
+
+method::ar
+
+argument::x
+X position in 3D space (control rate, default 0.0)
+
+argument::y
+Y position in 3D space (control rate, default 0.0)
+
+argument::z
+Z position in 3D space (control rate, default 0.0)
+
+argument::vx
+Velocity in X direction (control rate, default 0.0)
+
+argument::vy
+Velocity in Y direction (control rate, default 0.0)
+
+argument::vz
+Velocity in Z direction (control rate, default 0.0)
+
+argument::radius
+Collision radius for interaction with other atoms (control rate, default 0.8)
+
+argument::kickFreq
+Kick pitch in Hz (control rate, default 60.0)
+
+argument::bassFreq
+Bassline base frequency in Hz (control rate, default 110.0)
+
+argument::amp
+Audio amplitude (control rate, default 0.3)
+
+argument::bpm
+Beats per minute - synchronizes kick triggers and bassline peaks (control rate, default 120.0). This can be changed dynamically using .set() while the synth is running.
+
+argument::kickDecay
+Kick envelope decay time in seconds (control rate, default 0.15)
+
+argument::modDepth
+Bassline frequency modulation depth (0-1, control rate, default 0.1). Controls how much the bassline frequency deviates.
+
+argument::distortion
+Bassline distortion amount at peaks (0-1, control rate, default 0.3). Controls how much distortion is applied when the bassline peaks (aligned with kick).
+
+argument::compAttack
+Sidechain compressor attack time in seconds (control rate, default 0.01). How fast the compressor responds when the kick hits.
+
+argument::compRelease
+Sidechain compressor release time in seconds (control rate, default 0.1). How fast the compressor releases after the kick.
+
+argument::sidechainAmount
+Amount of sidechain compression/ducking (0-1, control rate, default 0.8). Controls how much the bassline is ducked when the kick plays. Higher values create more dramatic ducking.
+
+outputs::
+Audio signal combining kick and bassline, with bassline sidechained to kick (bassline ducks when kick plays).
+
+examples::
+
+code::
+
+// Basic womp
+{ Womp.ar }.play
+
+// Womp with custom frequencies
+{ Womp.ar(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.8, 50.0, 55.0, 0.3, 128.0) }.play
+
+// Womp in a space
+(
+{
+    var space = AtomSpace.ar(10.0);
+    var womp = Womp.ar(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.8, 60.0, 110.0, 0.3, 120.0);
+    womp;
+}.play
+)
+
+// Multiple womps synchronized to same BPM
+(
+{
+    var space = AtomSpace.ar(15.0);
+    var bpm = 120.0;
+    var womps = [
+        Womp.ar(-2.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.8, 60.0, 55.0, 0.2, bpm),
+        Womp.ar(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.8, 80.0, 110.0, 0.2, bpm),
+        Womp.ar(2.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.8, 50.0, 82.5, 0.2, bpm)
+    ];
+    womps.sum;
+}.play
+)
+
+// Change BPM dynamically using .set()
+(
+SynthDef(\wompSynth, { |bpm = 120.0|
+    var space = AtomSpace.ar(10.0);
+    var womp = Womp.ar(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.8, 60.0, 110.0, 0.3, bpm);
+    Out.ar(0, womp);
+}).add;
+)
+
+x = Synth(\wompSynth, [\bpm, 120.0]);
+x.set(\bpm, 140.0);  // Speed up - kick and bassline peaks stay synchronized
+x.set(\bpm, 100.0);  // Slow down
+x.free;
+
+// Womp with more distortion for stronger peaks
+{ Womp.ar(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.8, 60.0, 110.0, 0.3, 120.0, 0.15, 0.2, 0.5) }.play
+
+// Womp with strong sidechain compression - bassline ducks dramatically on kick
+{ Womp.ar(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.8, 60.0, 110.0, 0.3, 120.0, 0.15, 0.1, 0.3, 0.005, 0.15, 0.9) }.play
+
+// Womp with subtle sidechain - gentle ducking
+{ Womp.ar(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.8, 60.0, 110.0, 0.3, 120.0, 0.15, 0.1, 0.3, 0.01, 0.2, 0.5) }.play
+
+::

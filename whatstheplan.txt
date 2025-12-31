@@ -19,3 +19,9 @@ freqspace
 freqverse
 live
 SoundFreq
+
+
+
+RackSynth
+RackSample
+Squelch

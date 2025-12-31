@@ -1,0 +1,211 @@
+class:: Sylenth
+summary:: Sylenth1 VST plugin wrapper for SuperCollider
+related:: Classes/VSTPlugin, Classes/VSTPluginController
+categories:: UGens>VST
+
+description::
+
+Sylenth provides a convenient wrapper around VSTPlugin for loading and using the Sylenth1 VST synthesizer in SuperCollider. This class simplifies the process of integrating Sylenth1 into your SuperCollider code.
+
+Note: This requires the VSTPlugin extension to be installed. Download it from: https://github.com/Spacechild1/vstplugin
+
+classmethods::
+
+method::ar
+Load Sylenth1 as an audio rate UGen.
+
+argument::in
+Input signal (default: 0, meaning no input - for instrument use)
+
+argument::path
+Path to Sylenth1.vst3 file (optional, uses defaultPath if not specified)
+
+returns::
+VSTPlugin.ar node that can be used in SynthDefs
+
+method::defaultPath
+Class variable storing the default path to Sylenth1.vst3. Default: "/Library/Audio/Plug-Ins/VST3/Sylenth1.vst3"
+
+You can change this if Sylenth1 is installed in a different location:
+::
+
+code::
+Sylenth.defaultPath = "/path/to/your/Sylenth1.vst3";
+::
+
+method::findPaths
+Search for available Sylenth1 installations (VST3, VST2, or AU formats).
+Returns an array of available paths.
+
+Note: If Sylenth1.vst3 is blacklisted by VSTPlugin, try using a VST2 (.vst) or AU (.component) version instead.
+
+examples::
+
+code::
+
+// Note: If you get a "blacklisted" error, try using VST2 or AU format instead
+// Check available paths:
+Sylenth.findPaths.postln;
+
+// If VST3 is blacklisted, try VST2 or AU:
+// Sylenth.defaultPath = "/Library/Audio/Plug-Ins/VST/Sylenth1.vst"; // VST2
+// or
+// Sylenth.defaultPath = "/Library/Audio/Plug-Ins/Components/Sylenth1.component"; // AU
+
+// Basic usage - load Sylenth1 in a SynthDef
+(
+SynthDef(\sylenth, {
+    var sig = Sylenth.ar;
+    Out.ar(0, sig);
+}).add;
+)
+
+// Create and control Sylenth1
+(
+~synth = Synth(\sylenth);
+~vst = VSTPluginController(~synth);
+~vst.open(path: Sylenth.defaultPath);
+~vst.editor; // Open GUI
+)
+
+// Send MIDI notes (wait for plugin to open first)
+~vst.open(path: Sylenth.defaultPath, action: {
+    // Now it's safe to send MIDI after the plugin is opened
+    ~vst.midi.noteOn(0, 60, 100); // C4
+    ~vst.midi.noteOff(0, 60);
+});
+
+// Or check if synth is running before sending MIDI
+if(~synth.isRunning, {
+    ~vst.midi.noteOn(0, 60, 100);
+}, {
+    "Synth is not running".postln;
+});
+
+// Using SylenthController for easier management
+(
+~sylenth = SylenthController.new(Synth(\sylenth_synth));
+~sylenth.open;
+~sylenth.editor;
+~sylenth.noteOn(0, 60, 100); // Play note
+~sylenth.noteOff(0, 60);
+)
+
+// Multiple instances
+(
+~synth1 = Synth(\sylenth);
+~synth2 = Synth(\sylenth);
+~vst1 = VSTPluginController(~synth1);
+~vst2 = VSTPluginController(~synth2);
+~vst1.open(path: Sylenth.defaultPath);
+~vst2.open(path: Sylenth.defaultPath);
+)
+
+// Set parameters (use index or actual parameter name from the plugin)
+// Note: Parameter names depend on the plugin. Use VSTPlugin's parameter browser or set by index
+~vst.set(0, 0.5); // Set parameter by index (0-1 range)
+~vst.parameters; // List all available parameters
+
+// Cleanup
+~vst.close;
+~synth.free;
+
+::
+
+class:: SylenthController
+summary:: Convenience controller for Sylenth1 instances
+related:: Classes/Sylenth, Classes/VSTPluginController
+categories:: UGens>VST
+
+description::
+
+SylenthController provides a convenient wrapper around VSTPluginController specifically for Sylenth1, making it easier to manage plugin instances, send MIDI, and control parameters.
+
+classmethods::
+
+method::new
+
+argument::synth
+Synth instance containing Sylenth UGen
+
+argument::path
+Path to Sylenth1.vst3 file (optional, uses Sylenth.defaultPath if not specified)
+
+instancemethods::
+
+method::open
+Open the Sylenth1 plugin. Takes an optional action function to execute after opening.
+
+method::editor
+Open the Sylenth1 GUI editor window.
+
+method::close
+Close the Sylenth1 plugin.
+
+method::free
+Close the plugin and free the synth.
+
+method::midi
+Return the VSTPluginMIDIProxy for direct MIDI access. This allows you to use `~sylenth.midi.noteOn(...)` directly.
+
+method::noteOn
+Send MIDI note-on message. Arguments: channel (default 0), note (default 60), velocity (default 100).
+Automatically checks if the synth is running before sending MIDI.
+
+method::noteOff
+Send MIDI note-off message. Arguments: channel (default 0), note (default 60).
+Automatically checks if the synth is running before sending MIDI.
+
+method::isLoaded
+Check if the VST plugin is loaded.
+
+method::set
+Set a parameter by index (Integer). Value should be 0-1.
+Note: Parameter names may not work for all plugins. Use parameter index instead.
+
+method::get
+Get a parameter value by index (Integer).
+
+method::parameters
+Access the underlying VSTPluginController to list parameters: ~sylenth.vst.parameters;
+
+examples::
+
+code::
+
+// Create controller and open plugin (IMPORTANT: wait for plugin to open before using MIDI)
+(
+~sylenth = SylenthController.new(Synth(\sylenth_synth));
+~sylenth.open(action: {
+    "Plugin opened, ready to use".postln;
+    // Now safe to send MIDI or open editor
+    ~sylenth.editor;
+    ~sylenth.noteOn(0, 60, 100); // C4
+    
+    // Play more notes (after plugin is opened)
+    ~sylenth.noteOn(0, 64, 100); // E4
+    ~sylenth.noteOn(0, 67, 100); // G4
+    
+    // Release notes
+    ~sylenth.noteOff(0, 60);
+    ~sylenth.noteOff(0, 64);
+    ~sylenth.noteOff(0, 67);
+    
+    // Set parameters by index (0-1 range)
+    // To find parameter indices, check the plugin or use: ~sylenth.vst.parameters;
+    ~sylenth.set(0, 0.5); // Set first parameter
+    ~sylenth.set(1, 0.8); // Set second parameter
+    
+    // List available parameters (if supported)
+    ~sylenth.vst.parameters;
+});
+)
+
+// After plugin is opened, you can play notes:
+// ~sylenth.noteOn(0, 60, 100); // C4
+// ~sylenth.noteOff(0, 60);
+
+// Cleanup when done:
+// ~sylenth.free;
+
+::

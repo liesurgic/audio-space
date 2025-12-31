@@ -140,6 +140,72 @@ sc_add_server_plugin(
 ####################################################################################################
 
 ####################################################################################################
+# Begin target Womp
+####################################################################################################
+
+set(Womp_cpp_files
+    plugins/Womp/Womp.cpp
+    plugins/Womp/Womp.hpp
+)
+set(Womp_sc_files
+    plugins/Womp/Womp.sc
+)
+set(Womp_schelp_files
+    plugins/Womp/Womp.schelp
+)
+
+sc_add_server_plugin(
+    "plugins/Womp/Womp" # destination directory
+    "Womp" # target name
+    "${Womp_cpp_files}"
+    "${Womp_sc_files}"
+    "${Womp_schelp_files}"
+)
+
+# End target Womp
+####################################################################################################
+
+####################################################################################################
+# Begin target Sylenth
+####################################################################################################
+
+# Note: Sylenth is a SuperCollider class wrapper, not a C++ plugin
+# It wraps VSTPlugin for easier Sylenth1 usage
+set(Sylenth_sc_files
+    plugins/Sylenth/Sylenth.sc
+)
+set(Sylenth_schelp_files
+    plugins/Sylenth/Sylenth.schelp
+)
+
+# Install SuperCollider class and help files (no C++ plugin to build)
+install(FILES ${Sylenth_sc_files} DESTINATION plugins/Sylenth/Sylenth/Classes)
+install(FILES ${Sylenth_schelp_files} DESTINATION plugins/Sylenth/Sylenth/HelpSource/Classes)
+
+# End target Sylenth
+####################################################################################################
+
+####################################################################################################
+# Kick2 - VST Wrapper
+####################################################################################################
+
+# Note: Kick2 is a SuperCollider class wrapper, not a C++ plugin
+# It wraps VSTPlugin for easier Kick 2 usage
+set(Kick2_sc_files
+    plugins/Kick2/Kick2.sc
+)
+set(Kick2_schelp_files
+    plugins/Kick2/Kick2.schelp
+)
+
+# Install SuperCollider class and help files (no C++ plugin to build)
+install(FILES ${Kick2_sc_files} DESTINATION plugins/Kick2/Kick2/Classes)
+install(FILES ${Kick2_schelp_files} DESTINATION plugins/Kick2/Kick2/HelpSource/Classes)
+
+# End target Kick2
+####################################################################################################
+
+####################################################################################################
 # END PLUGIN TARGET DEFINITION
 ####################################################################################################
 
